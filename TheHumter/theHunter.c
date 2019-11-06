@@ -2,6 +2,10 @@
 #include <GL/glut.h>
 
 static void on_display(void);
+static void on_keyboard(unsigned char key, int x, int y);
+
+static void initialize(void);
+
 
 int main(int argc, char ** argv){
 
@@ -12,14 +16,31 @@ int main(int argc, char ** argv){
 	glutInitWindowPosition(200, 200);
 	glutCreateWindow(argv[0]);
 
+	glutKeyboardFunc(on_keyboard);
 	glutDisplayFunc(on_display);
 
-	glClearColor(0.75, 0.75, 0.75, 0);
-    glEnable(GL_DEPTH_TEST);
+    initialize();
 
     glutMainLoop();
 
 	return 0;
+}
+
+static void initialize(void){
+
+	glClearColor(0.75, 0.75, 0.75, 0);
+    glEnable(GL_DEPTH_TEST);
+    
+}
+
+static void on_keyboard(unsigned char key, int x, int y)
+{
+    switch (key) {
+    case 27:
+        //na Esc izlazi iz programa
+        exit(0);
+        break;
+    }
 }
 
 static void on_display(void){
