@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 
-//Dimenzije prozora
-static int window_width, window_height;
-
 static void on_display(void);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
@@ -35,9 +32,8 @@ int main(int argc, char ** argv){
 
 static void initialize(void){
 
-	glClearColor(0.75, 0.75, 0.75, 0);
+	glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
-    glLineWidth(2);
     
 }
 
@@ -51,7 +47,7 @@ static void on_keyboard(unsigned char key, int x, int y)
     }
 }
 
-static void init_lights()
+static void init_lights(void)
 {
     /* Pozicija svetla (u pitanju je direkcionalno svetlo). */
     GLfloat light_position[] = { 1, 15, 5, 0 };
@@ -65,6 +61,18 @@ static void init_lights()
     /* Spekularna boja svetla. */
     GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
 
+    /*Koeficijent ambijentalne refleksije materijala*/
+    GLfloat ambient_coeffs[] = {1.0, 0.1, 0.1, 1};
+
+    /*Koeficijent difuzne refleksije materijala*/
+    GLfloat diffuse_coeffs[] = {0.0, 0.0, 0.8, 1};
+
+    /*Koeficijent spekularne refleksije materijala*/
+    GLfloat specular_coeffs[] = {1, 1, 1, 1};
+
+    /*Koeficijent glatkosti materijala*/
+    GLfloat shininess = 20;
+
     /* Ukljucuje se osvjetljenje i podesavaju parametri svetla. */
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -72,71 +80,41 @@ static void init_lights()
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+    /*Postavljamo parametre materijala*/
+    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
+    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }
 
 static void on_display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glViewport(0, 0, window_width, window_height);
+	init_lights();
 
-	/*glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(-1, 1, -1, 1, 1, 10);
-
+	/* Podesava se vidna tacka. */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(2, 5, 5, 0, 0, 0, 0, 1, 0);*/
+    gluLookAt(6, 0, 7, 0, 0, 0, 0, 1, 0);
 
-    //init_lights();
-
-    make_duck(0,0,0);
+    make_duck(1, 1, 1);
 
 	glutSwapBuffers();
 }
 
 static void on_reshape(int width, int height){
-	window_width = width;
-    window_height = height;
+	
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(30, (float)width/height, 1, 10);
 }
 
 void make_duck(float x_c, float y_c, float z_c){
 
-	//Kljun patke
-	glColor3f(0.5,0.3,0.7);
-
-    glBegin(GL_POLYGON);
-    	glVertex3f(-1.0,0.25,0);
-    	glVertex3f(-0.8,0.2,0);
-    	glVertex3f(-0.8,0.3,0);
-    glEnd();
-
-    //glava patke
-	glColor3f(0.7,0.5,0.7);
-
-    glBegin(GL_POLYGON);
-    	glVertex3f(-0.8,0.2,0);
-    	glVertex3f(-0.8,0.3,0);
-    	glVertex3f(-0.65,0.4,0);
-    	glVertex3f(-0.45,0.4,0);
-    	glVertex3f(-0.3,0.3,0);
-    	glVertex3f(-0.39,0.2,0);
-    	glVertex3f(-0.55,0.15,0);
-    	glVertex3f(-0.8,0.2,0);
-    glEnd();
-
-    //oko patke
-    glColor3f(1.0,1.0,1.0);
-
-    glBegin(GL_POLYGON);
-    	glVertex3f(-0.55,0.3, 0);
-    	glVertex3f(-0.6,0.3, 0);
-    	glVertex3f(-0.6,0.35, 0);
-    	glVertex3f(-0.55,0.35, 0);
-    	glVertex3f(-0.55,0.3, 0);
-    glEnd();
-
-    //telo patke
-
-    //krila patke
+    glColor3f(1, 1, 0);
+	glutSolidSphere(1, 64, 64);
 
 }
