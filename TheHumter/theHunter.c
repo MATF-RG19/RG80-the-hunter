@@ -1,120 +1,170 @@
-#include <stdlib.h>
 #include <GL/glut.h>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <stdlib.h>
 
-static void on_display(void);
-static void on_keyboard(unsigned char key, int x, int y);
+#define TIMER_INTERVAL 20
+#define TIMER_ID 0
+
+#define PI 3.1415926535897
+
+static void on_display();
 static void on_reshape(int width, int height);
-static void init_lights(void);
+static void on_keyboard(unsigned char key, int x, int y);
+static void on_timer(int id);
 
-static void initialize(void);
+float animation_parameter = 0;
+float animation_ongoing = 0;
 
-void make_duck(float x_c, float y_c, float z_c);
+void draw_duck();
 
-int main(int argc, char ** argv){
+int main(int argc, char **argv){
+    // Inicijalizuje se GLUT.
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(800, 800);
+    glutInitWindowPosition(50, 50);
+    glutCreateWindow(argv[0]);
 
-	glutInitWindowSize(500, 500);
-	glutInitWindowPosition(200, 200);
-	glutCreateWindow(argv[0]);
+    glutDisplayFunc(on_display);
+    glutReshapeFunc(on_reshape);
+    glutKeyboardFunc(on_keyboard);
 
-	glutKeyboardFunc(on_keyboard);
-	glutReshapeFunc(on_reshape);
-	glutDisplayFunc(on_display);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_NORMALIZE);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
 
-    initialize();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
 
+    float light_position[] = {-1, 3, 2, 1};
+    float light_ambient[] = {.3f, .3f, .3f, 1};
+    float light_diffuse[] = {.7f, .7f, .7f, 1};
+    float light_specular[] = {.7f, .7f, .7f, 1};
+
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+
+    glEnable(GL_COLOR_MATERIAL);
+
+    glClearColor(1, 1, 1, 1);
     glutMainLoop();
 
-	return 0;
+    return 0;
 }
 
-static void initialize(void){
+void on_keyboard(unsigned char key, int x, int y) {
+    switch(key) {
+        case 'r': // restart animation
+            animation_parameter = 0;
+            glutPostRedisplay();
+            break;
+        case 's': // stop animation
+        case 'S':
+            animation_ongoing = 0;
+            break;
+        case 'g': // start animation
+        case 'G':
+            if (!animation_ongoing) {
+                animation_ongoing = 1;
+                glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
+            }
+            break;
 
-	glClearColor(0, 0, 0, 0);
-    glEnable(GL_DEPTH_TEST);
-    
-}
-
-static void on_keyboard(unsigned char key, int x, int y)
-{
-    switch (key) {
-    case 27:
-        //na Esc izlazi iz programa
-        exit(0);
-        break;
+        case 27:
+          exit(0);
+          break;
     }
 }
 
-static void init_lights(void)
-{
-    /* Pozicija svetla (u pitanju je direkcionalno svetlo). */
-    GLfloat light_position[] = { 1, 15, 5, 0 };
+void on_timer(int id) {
+    if (id != TIMER_ID)
+    	return;
 
-    /* Ambijentalna boja svetla. */
-    GLfloat light_ambient[] = { 0.1, 0.1, 0.1, 1 };
+    glutPostRedisplay();
 
-    /* Difuzna boja svetla. */
-    GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1 };
-
-    /* Spekularna boja svetla. */
-    GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
-
-    /*Koeficijent ambijentalne refleksije materijala*/
-    GLfloat ambient_coeffs[] = {1.0, 0.1, 0.1, 1};
-
-    /*Koeficijent difuzne refleksije materijala*/
-    GLfloat diffuse_coeffs[] = {0.0, 0.0, 0.8, 1};
-
-    /*Koeficijent spekularne refleksije materijala*/
-    GLfloat specular_coeffs[] = {1, 1, 1, 1};
-
-    /*Koeficijent glatkosti materijala*/
-    GLfloat shininess = 20;
-
-    /* Ukljucuje se osvjetljenje i podesavaju parametri svetla. */
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
-    /*Postavljamo parametre materijala*/
-    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
-    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    if (animation_ongoing)
+        glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
 }
 
-static void on_display(void){
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void on_reshape(int width, int height) {
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-	init_lights();
+    gluPerspective(30, (float) width/height, 1, 20);
+}
 
-	/* Podesava se vidna tacka. */
+void draw_floor(){
+    glPushMatrix();
+    
+    //Crtamo podlogu
+    glPushMatrix();
+        glTranslatef(0, 1, 0);
+        glScalef(30, 0.1, 30);
+        glColor3f(0.3, 0.8, 0.3);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+void draw_duck(){
+    glPushMatrix();
+   
+    glPushMatrix();
+        glTranslatef(0, 2, 0);
+        glScalef(0.9, 0.6, 1.2);
+        glColor3f(0.8, 0.8, 0.8);
+        glutSolidSphere(0.1, 64, 64);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(0, 2.02, 0.15);
+        glScalef(0.5, 0.5, 0.5);
+        glColor3f(0.25, 0.25, 0.25);
+        glutSolidSphere(0.1, 64, 64);
+    glPopMatrix();
+
+    glPushMatrix();
+    	glTranslatef(1.2, 2, 0.02);
+        glColor3f(0.7, 0.7, 0.7);
+        glScalef(1.2, 0.02, 0.1);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+    	glTranslatef(-1.2, 2, 0.02);
+        glColor3f(0.7, 0.7, 0.7);
+        glScalef(1.2, 0.02, 0.1);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+void on_display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(6, 0, 7, 0, 0, 0, 0, 1, 0);
 
-    make_duck(1, 1, 1);
+    gluLookAt(10, 2, 0,
+              0, 2, 0,
+              0, 1, 0);
 
-	glutSwapBuffers();
+    glPushMatrix();
+        draw_duck();
+    glPopMatrix();
+
+    glPushMatrix();
+        draw_floor();
+    glPopMatrix();
+
+    glutSwapBuffers();
 }
 
-static void on_reshape(int width, int height){
-	
-	glViewport(0, 0, width, height);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(30, (float)width/height, 1, 10);
-}
-
-void make_duck(float x_c, float y_c, float z_c){
-
-    glColor3f(1, 1, 0);
-	glutSolidSphere(1, 64, 64);
-
-}
