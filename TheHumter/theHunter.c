@@ -17,7 +17,15 @@ static void on_timer(int id);
 float animation_parameter = 0;
 float animation_ongoing = 0;
 
-void draw_duck();
+typedef struct pray_list{
+	int pray_id;
+	float x;
+	float y;
+	float z;
+}List_of_pray;
+
+void draw_pray(float x, float y, float z);
+void draw_floor();
 
 int main(int argc, char **argv){
     // Inicijalizuje se GLUT.
@@ -50,6 +58,7 @@ int main(int argc, char **argv){
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
     glEnable(GL_COLOR_MATERIAL);
+    srand(time(0));
 
     glClearColor(1, 1, 1, 1);
     glutMainLoop();
@@ -78,6 +87,11 @@ void on_keyboard(unsigned char key, int x, int y) {
         case 27:
           exit(0);
           break;
+
+        case 'x':
+        case 'X':
+        	printf("x: %d, y: %d",x,y);
+        	break;
     }
 }
 
@@ -113,35 +127,23 @@ void draw_floor(){
     glPopMatrix();
 }
 
-void draw_duck(){
+void draw_pray(float x, float y, float z){
     glPushMatrix();
    
+   	glTranslatef(x, y+1.5, z);
+   //body
     glPushMatrix();
-        glTranslatef(0, 2, 0);
-        glScalef(0.9, 0.6, 1.2);
+        glScalef(0.9, 0.8, 1.1);
         glColor3f(0.8, 0.8, 0.8);
         glutSolidSphere(0.1, 64, 64);
     glPopMatrix();
 
+    //head
     glPushMatrix();
-        glTranslatef(0, 2.02, 0.15);
+        glTranslatef(0, 0.02, 0.15);
         glScalef(0.5, 0.5, 0.5);
         glColor3f(0.25, 0.25, 0.25);
         glutSolidSphere(0.1, 64, 64);
-    glPopMatrix();
-
-    glPushMatrix();
-    	glTranslatef(1.2, 2, 0.02);
-        glColor3f(0.7, 0.7, 0.7);
-        glScalef(1.2, 0.02, 0.1);
-        glutSolidCube(1);
-    glPopMatrix();
-
-    glPushMatrix();
-    	glTranslatef(-1.2, 2, 0.02);
-        glColor3f(0.7, 0.7, 0.7);
-        glScalef(1.2, 0.02, 0.1);
-        glutSolidCube(1);
     glPopMatrix();
 
     glPopMatrix();
@@ -153,14 +155,23 @@ void on_display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    gluLookAt(10, 2, 0,
-              0, 2, 0,
+    gluLookAt(10, 2, 10,
+              0, 3, 0,
               0, 1, 0);
 
-    glPushMatrix();
-        draw_duck();
-    glPopMatrix();
+    //plen
+    for(int i = 0; i < 20; i++){
+    	//HACK - priveremeno da se ne bi sponovali na istom mestu
+    	float x = 2 - rand()%4;
+    	float y = rand()%4;
+    	float z = 2 - rand()%4;
+    	
+	    glPushMatrix();
+	        draw_pray(x,y,z);
+	    glPopMatrix();
+    }
 
+    //okruzenje
     glPushMatrix();
         draw_floor();
     glPopMatrix();
