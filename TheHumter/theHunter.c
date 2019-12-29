@@ -26,6 +26,8 @@ typedef struct pray_list{
 
 void draw_pray(float x, float y, float z);
 void draw_floor();
+void draw_tree(float x, float y, float z);
+void draw_bush(float x, float y, float z);
 
 int main(int argc, char **argv){
     // Inicijalizuje se GLUT.
@@ -127,6 +129,31 @@ void draw_floor(){
     glPopMatrix();
 }
 
+void draw_tree(float x, float y, float z){
+	glPushMatrix();
+   
+   	glTranslatef(x,1+y,z);
+   	glPushMatrix();
+   		glColor3f(0.5, 0.5, 0.5);
+   		glScalef(1,2 + rand()%2,1);
+   		glutWireCube(1);
+   	glPopMatrix();
+
+    glPopMatrix();
+}
+void draw_bush(float x, float y, float z){
+	glPushMatrix();
+   
+   	glTranslatef(x,0.5+y,z);
+   	glPushMatrix();
+   		glColor3f(0.3, 0.7, 0.3);
+   		glScalef(1,rand()%2,1);
+   		glutWireCube(1);
+   	glPopMatrix();
+
+    glPopMatrix();
+}
+
 void draw_pray(float x, float y, float z){
     glPushMatrix();
    
@@ -163,7 +190,7 @@ void on_display() {
     for(int i = 0; i < 20; i++){
     	//HACK - priveremeno da se ne bi sponovali na istom mestu
     	float x = 2 - rand()%4;
-    	float y = rand()%4;
+    	float y = rand()%2;
     	float z = 2 - rand()%4;
     	
 	    glPushMatrix();
@@ -175,6 +202,19 @@ void on_display() {
     glPushMatrix();
         draw_floor();
     glPopMatrix();
+
+    int maxmin = 3;
+    for(int i = 0; i < 5; i++){
+    	glPushMatrix();
+    		draw_tree(maxmin-rand()%(2*maxmin),1,maxmin-rand()%(2*maxmin));
+		glPopMatrix();
+    }
+
+    for(int i = 0; i < 10; i++){
+    	glPushMatrix();
+    		draw_bush(maxmin-rand()%(2*maxmin),1,maxmin-rand()%(2*maxmin));
+		glPopMatrix();
+    }
 
     glutSwapBuffers();
 }
