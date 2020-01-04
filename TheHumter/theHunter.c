@@ -8,6 +8,9 @@
 #define TIMER_ID 0
 
 #define PI 3.1415926535897
+#define NUM_OF_TREES 5
+#define NUM_OF_BUSH 10
+#define NUM_OF_PRAY 10
 
 static void on_display();
 static void on_reshape(int width, int height);
@@ -17,24 +20,23 @@ static void on_timer(int id);
 float animation_parameter = 0;
 float animation_ongoing = 0;
 
-typedef struct pray_list{
-	int pray_id;
-	float x;
-	float y;
-	float z;
-}List_of_pray;
+float position_of_trees[NUM_OF_TREES][3];
+float position_of_bush[NUM_OF_BUSH][3];
+float position_of_pray[NUM_OF_PRAY][3];
 
 void draw_pray(float x, float y, float z);
 void draw_floor();
 void draw_tree(float x, float y, float z);
 void draw_bush(float x, float y, float z);
 
+void generate_terain();
+
 int main(int argc, char **argv){
     // Inicijalizuje se GLUT.
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-    glutInitWindowSize(800, 800);
+    glutInitWindowSize(1200, 800);
     glutInitWindowPosition(50, 50);
     glutCreateWindow(argv[0]);
 
@@ -61,6 +63,7 @@ int main(int argc, char **argv){
 
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
+    //generate_terain();
 
     glClearColor(1, 1, 1, 1);
     glutMainLoop();
@@ -115,6 +118,29 @@ void on_reshape(int width, int height) {
     gluPerspective(30, (float) width/height, 1, 20);
 }
 
+void generate_terain(){
+	int i = 0;
+	int maxx=6;
+	int maxz=7, minz=-5;
+	while(i<NUM_OF_TREES){
+		position_of_trees[i][0]=maxx - (float)(rand()%(maxx*2*100))/(float)100;
+		position_of_trees[i][1]=(float)(rand()%(300))/(float)100;
+		position_of_trees[i][2]=maxz - (float)(rand()%((maxz - minz)*2*100))/(float)100;
+	}
+
+	while(i<NUM_OF_BUSH){
+		position_of_bush[i][0]=maxx - (float)(rand()%(maxx*2*100))/(float)100;
+		position_of_bush[i][1]=(float)(rand()%(100))/(float)100;
+		position_of_bush[i][2]=maxz - (float)(rand()%((maxz - minz)*2*100))/(float)100;
+	}
+
+	while(i<NUM_OF_PRAY){
+		position_of_bush[i][0]=0;
+		position_of_bush[i][1]=-1;
+		position_of_bush[i][2]=0;
+	}
+}
+
 void draw_floor(){
     glPushMatrix();
     
@@ -129,26 +155,41 @@ void draw_floor(){
     glPopMatrix();
 }
 
-void draw_tree(float x, float y, float z){
+void draw_tree(float x, float h, float z){
 	glPushMatrix();
    
-   	glTranslatef(x,1+y,z);
+   	glTranslatef(1,2,0);
    	glPushMatrix();
-   		glColor3f(0.5, 0.5, 0.5);
-   		glScalef(1,2 + rand()%2,1);
-   		glutWireCube(1);
+   		glColor3f(0.8, 0.5, 0.5);
+   		glScalef(0.1,2,0.1);
+   		glutSolidCube(1);
+   	glPopMatrix();
+
+   	glPushMatrix();
+   		glTranslatef(0,0.5,0);
+   		glColor3f(0.2, 0.8, 0.3);
+   		glScalef(0.6,0.6,0.6);
+   		glutSolidSphere(1,32,32);
    	glPopMatrix();
 
     glPopMatrix();
 }
+
 void draw_bush(float x, float y, float z){
 	glPushMatrix();
    
-   	glTranslatef(x,0.5+y,z);
+   	glTranslatef(-1,1,0);
    	glPushMatrix();
    		glColor3f(0.3, 0.7, 0.3);
-   		glScalef(1,rand()%2,1);
-   		glutWireCube(1);
+   		glScalef(0.6,0.4,0.6);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
+   	glPushMatrix();
+   		glColor3f(0.3, 0.7, 0.3);
+   		glTranslatef(0,0,0.6);
+   		glScalef(0.3,0.3,0.3);
+   		glutSolidSphere(1,32,32);
    	glPopMatrix();
 
     glPopMatrix();
@@ -182,39 +223,33 @@ void on_display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    gluLookAt(10, 2, 10,
+    gluLookAt(0, 2, 15,
               0, 3, 0,
               0, 1, 0);
 
     //plen
-    for(int i = 0; i < 20; i++){
-    	//HACK - priveremeno da se ne bi sponovali na istom mestu
-    	float x = 2 - rand()%4;
-    	float y = rand()%2;
-    	float z = 2 - rand()%4;
-    	
+    /*for(int i = 0; i < NUM_OF_PRAY; i++){
 	    glPushMatrix();
-	        draw_pray(x,y,z);
+	        draw_pray(position_of_pray[i][0],position_of_pray[i][1],position_of_pray[i][2]);
 	    glPopMatrix();
-    }
+    }*/
 
     //okruzenje
     glPushMatrix();
         draw_floor();
     glPopMatrix();
 
-    int maxmin = 3;
-    for(int i = 0; i < 5; i++){
-    	glPushMatrix();
-    		draw_tree(maxmin-rand()%(2*maxmin),1,maxmin-rand()%(2*maxmin));
-		glPopMatrix();
-    }
+    /*for(int i = 0; i < NUM_OF_BUSH; i++){
+	    glPushMatrix();
+	    	draw_bush(position_of_bush[i][0],position_of_bush[i][1],position_of_bush[i][2]);
+	    glPopMatrix();
+	}
 
-    for(int i = 0; i < 10; i++){
-    	glPushMatrix();
-    		draw_bush(maxmin-rand()%(2*maxmin),1,maxmin-rand()%(2*maxmin));
-		glPopMatrix();
-    }
+	for(int i = 0; i < NUM_OF_TREES; i++){
+	    glPushMatrix();
+	    	draw_tree(position_of_trees[i][0],position_of_trees[i][1],position_of_trees[i][2]);
+	    glPopMatrix();
+	}*/
 
     glutSwapBuffers();
 }
