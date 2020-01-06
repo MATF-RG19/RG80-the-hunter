@@ -10,7 +10,7 @@
 #define PI 3.1415926535897
 #define NUM_OF_TREES 14
 #define NUM_OF_BUSH 20
-#define NUM_OF_PRAY 10
+#define MAX_NUM_OF_PRAY 10
 
 static void on_display();
 static void on_reshape(int width, int height);
@@ -22,15 +22,17 @@ float animation_ongoing = 0;
 
 float position_of_trees[NUM_OF_TREES][3];
 float position_of_bush[NUM_OF_BUSH][3];
-float position_of_pray[NUM_OF_PRAY][3];
+float position_of_pray[MAX_NUM_OF_PRAY][4];
 
 void draw_pray(float x, float y, float z);
 void draw_floor();
 void draw_tree(float x, float y, float z);
 void draw_bush(float x, float y, float z);
 void draw_terrain();
+void generate_pray();
 
 void generate_terain();
+void initiate_pray();
 
 int main(int argc, char **argv){
     // Inicijalizuje se GLUT.
@@ -65,6 +67,7 @@ int main(int argc, char **argv){
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
     generate_terain();
+    initiate_pray();
 
     glClearColor(0.3, 0.4, 0.8, 1);
     glutMainLoop();
@@ -134,6 +137,21 @@ void generate_terain(){
 		position_of_trees[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
 		position_of_trees[i][1] = 2 + (float)(rand() % 300)/(float)100;
 		position_of_trees[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+	}
+}
+
+//inicijalne pozcicije plena
+void initiate_pray(){
+	int maxx = 7;
+	int maxz = 7, minz = -5;
+
+	if(!animation_parameter){
+		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
+			position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
+			position_of_pray[i][1] = -1;
+			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+			position_of_pray[i][2] = 0;
+		}
 	}
 }
 
@@ -245,9 +263,12 @@ void on_display() {
     //okruzenje
     draw_terrain();
 
+    generate_pray();
+
     glutSwapBuffers();
 }
 
+//postavlja zbunje i drvece na odgovarajuce pozicije
 void draw_terrain(){
 	glPushMatrix();
 
@@ -270,3 +291,15 @@ void draw_terrain(){
     glPopMatrix();
 }
 
+//postavlja plen na ogovarajuce pocetne pozicije
+void generate_pray(){
+	glPushMatrix();
+
+	for(int i=0; i < MAX_NUM_OF_PRAY; i++){
+		glPushMatrix();
+			draw_pray(position_of_pray[i][0], position_of_pray[i][1], position_of_pray[i][2]);
+		glPopMatrix();
+	}
+
+	glPopMatrix();
+}
