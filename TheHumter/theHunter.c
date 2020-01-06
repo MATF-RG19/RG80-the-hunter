@@ -8,7 +8,7 @@
 #define TIMER_ID 0
 
 #define PI 3.1415926535897
-#define NUM_OF_TREES 5
+#define NUM_OF_TREES 14
 #define NUM_OF_BUSH 20
 #define NUM_OF_PRAY 10
 
@@ -28,6 +28,7 @@ void draw_pray(float x, float y, float z);
 void draw_floor();
 void draw_tree(float x, float y, float z);
 void draw_bush(float x, float y, float z);
+void draw_terrain();
 
 void generate_terain();
 
@@ -65,7 +66,7 @@ int main(int argc, char **argv){
     srand(time(0));
     generate_terain();
 
-    glClearColor(1, 1, 1, 1);
+    glClearColor(0.3, 0.4, 0.8, 1);
     glutMainLoop();
 
     return 0;
@@ -125,16 +126,14 @@ void generate_terain(){
 
 	for(int i=0; i<NUM_OF_BUSH; i++){
 		position_of_bush[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
-		position_of_bush[i][1] = 1;
+		position_of_bush[i][1] = 1.2;
 		position_of_bush[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
-		printf("%f %f %f\n", position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2]);
 	}
 
 	for(int i=0; i<NUM_OF_TREES; i++){
 		position_of_trees[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
-		position_of_trees[i][1] = 1;
-		position_of_trees[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;	
-		printf("%f %f %f\n", position_of_trees[i][0], position_of_trees[i][1], position_of_trees[i][2]);
+		position_of_trees[i][1] = 2 + (float)(rand() % 300)/(float)100;
+		position_of_trees[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 	}
 }
 
@@ -157,15 +156,15 @@ void draw_floor(){
 void draw_tree(float x, float h, float z){
 	glPushMatrix();
    
-   	glTranslatef(1,2,0);
+   	glTranslatef(x,h/(float)2,z);
    	glPushMatrix();
    		glColor3f(0.8, 0.5, 0.5);
-   		glScalef(0.1,2,0.1);
+   		glScalef(0.1,h,0.1);
    		glutSolidCube(1);
    	glPopMatrix();
 
    	glPushMatrix();
-   		glTranslatef(0,0.5,0);
+   		glTranslatef(0,h/(float)2 + 0.5,0);
    		glColor3f(0.2, 0.8, 0.3);
    		glScalef(0.6,0.6,0.6);
    		glutSolidSphere(1,32,32);
@@ -178,7 +177,7 @@ void draw_tree(float x, float h, float z){
 void draw_bush(float x, float y, float z){
 	glPushMatrix();
    
-   	glTranslatef(-1,1,0);
+   	glTranslatef(x,y,z);
    	glPushMatrix();
    		glColor3f(0.3, 0.7, 0.3);
    		glScalef(0.6,0.4,0.6);
@@ -192,6 +191,20 @@ void draw_bush(float x, float y, float z){
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
 
+   	glPushMatrix();
+   		glColor3f(0.3, 0.7, 0.3);
+   		glTranslatef(-0.6,0,0);
+   		glScalef(0.2,0.2,0.2);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
+   	glPushMatrix();
+   		glColor3f(0.3, 0.7, 0.3);
+   		glTranslatef(0.6,0,0);
+   		glScalef(0.3,0.3,0.2);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
     glPopMatrix();
 }
 
@@ -199,7 +212,7 @@ void draw_bush(float x, float y, float z){
 void draw_pray(float x, float y, float z){
     glPushMatrix();
    
-   	glTranslatef(x, y+1.5, z);
+   	glTranslatef(x, y, z);
    //telo
     glPushMatrix();
         glScalef(0.9, 0.8, 1.1);
@@ -230,7 +243,7 @@ void on_display() {
               0, 1, 0);
 
     //okruzenje
-    
+    draw_terrain();
 
     glutSwapBuffers();
 }
@@ -241,6 +254,18 @@ void draw_terrain(){
 	glPushMatrix();
         draw_floor();
     glPopMatrix();
+
+    for(int i = 0; i < NUM_OF_BUSH; i++){
+    	glPushMatrix();
+    		draw_bush(position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2]);
+    	glPopMatrix();
+    }
+
+    for(int i = 0; i < NUM_OF_TREES; i++){
+    	glPushMatrix();
+    		draw_tree(position_of_trees[i][0], position_of_trees[i][1], position_of_trees[i][2]);
+    	glPopMatrix();
+    }
 
     glPopMatrix();
 }
