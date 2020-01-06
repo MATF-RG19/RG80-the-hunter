@@ -9,7 +9,7 @@
 
 #define PI 3.1415926535897
 #define NUM_OF_TREES 5
-#define NUM_OF_BUSH 10
+#define NUM_OF_BUSH 20
 #define NUM_OF_PRAY 10
 
 static void on_display();
@@ -63,7 +63,7 @@ int main(int argc, char **argv){
 
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
-    //generate_terain();
+    generate_terain();
 
     glClearColor(1, 1, 1, 1);
     glutMainLoop();
@@ -88,11 +88,11 @@ void on_keyboard(unsigned char key, int x, int y) {
                 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
             }
             break;
-
+        //quit program
         case 27:
           exit(0);
           break;
-
+        //print position of mouse
         case 'x':
         case 'X':
         	printf("x: %d, y: %d",x,y);
@@ -118,29 +118,27 @@ void on_reshape(int width, int height) {
     gluPerspective(30, (float) width/height, 1, 20);
 }
 
+//generise pozicije drveca i zbunja
 void generate_terain(){
-	int i = 0;
 	int maxx=6;
 	int maxz=7, minz=-5;
-	while(i<NUM_OF_TREES){
-		position_of_trees[i][0]=maxx - (float)(rand()%(maxx*2*100))/(float)100;
-		position_of_trees[i][1]=(float)(rand()%(300))/(float)100;
-		position_of_trees[i][2]=maxz - (float)(rand()%((maxz - minz)*2*100))/(float)100;
+
+	for(int i=0; i<NUM_OF_BUSH; i++){
+		position_of_bush[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
+		position_of_bush[i][1] = 1;
+		position_of_bush[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+		printf("%f %f %f\n", position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2]);
 	}
 
-	while(i<NUM_OF_BUSH){
-		position_of_bush[i][0]=maxx - (float)(rand()%(maxx*2*100))/(float)100;
-		position_of_bush[i][1]=(float)(rand()%(100))/(float)100;
-		position_of_bush[i][2]=maxz - (float)(rand()%((maxz - minz)*2*100))/(float)100;
-	}
-
-	while(i<NUM_OF_PRAY){
-		position_of_bush[i][0]=0;
-		position_of_bush[i][1]=-1;
-		position_of_bush[i][2]=0;
+	for(int i=0; i<NUM_OF_TREES; i++){
+		position_of_trees[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
+		position_of_trees[i][1] = 1;
+		position_of_trees[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;	
+		printf("%f %f %f\n", position_of_trees[i][0], position_of_trees[i][1], position_of_trees[i][2]);
 	}
 }
 
+//crtamo tlo
 void draw_floor(){
     glPushMatrix();
     
@@ -155,6 +153,7 @@ void draw_floor(){
     glPopMatrix();
 }
 
+//funkcija koja definise izgled drveta
 void draw_tree(float x, float h, float z){
 	glPushMatrix();
    
@@ -175,6 +174,7 @@ void draw_tree(float x, float h, float z){
     glPopMatrix();
 }
 
+//funkcija koja definise izgled zbuna
 void draw_bush(float x, float y, float z){
 	glPushMatrix();
    
@@ -195,18 +195,19 @@ void draw_bush(float x, float y, float z){
     glPopMatrix();
 }
 
+//funkcija koja definise izgled plena
 void draw_pray(float x, float y, float z){
     glPushMatrix();
    
    	glTranslatef(x, y+1.5, z);
-   //body
+   //telo
     glPushMatrix();
         glScalef(0.9, 0.8, 1.1);
         glColor3f(0.8, 0.8, 0.8);
         glutSolidSphere(0.1, 64, 64);
     glPopMatrix();
 
-    //head
+    //glava
     glPushMatrix();
         glTranslatef(0, 0.02, 0.15);
         glScalef(0.5, 0.5, 0.5);
@@ -223,34 +224,24 @@ void on_display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    //pozicija kamere
     gluLookAt(0, 2, 15,
               0, 3, 0,
               0, 1, 0);
 
-    //plen
-    /*for(int i = 0; i < NUM_OF_PRAY; i++){
-	    glPushMatrix();
-	        draw_pray(position_of_pray[i][0],position_of_pray[i][1],position_of_pray[i][2]);
-	    glPopMatrix();
-    }*/
-
     //okruzenje
-    glPushMatrix();
+    
+
+    glutSwapBuffers();
+}
+
+void draw_terrain(){
+	glPushMatrix();
+
+	glPushMatrix();
         draw_floor();
     glPopMatrix();
 
-    /*for(int i = 0; i < NUM_OF_BUSH; i++){
-	    glPushMatrix();
-	    	draw_bush(position_of_bush[i][0],position_of_bush[i][1],position_of_bush[i][2]);
-	    glPopMatrix();
-	}
-
-	for(int i = 0; i < NUM_OF_TREES; i++){
-	    glPushMatrix();
-	    	draw_tree(position_of_trees[i][0],position_of_trees[i][1],position_of_trees[i][2]);
-	    glPopMatrix();
-	}*/
-
-    glutSwapBuffers();
+    glPopMatrix();
 }
 
