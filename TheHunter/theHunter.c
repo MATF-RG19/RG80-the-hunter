@@ -92,6 +92,8 @@ void on_keyboard(unsigned char key, int x, int y) {
             animation_parameter = 0;
             animation_set = 0;
             pray_killed = 0;
+            initiate_pray();
+            generate_terain();
             glutPostRedisplay();
             break;
         case 's': // stop animation
@@ -112,9 +114,9 @@ void on_keyboard(unsigned char key, int x, int y) {
         //print position of mouse
         case 'x':
         case 'X':
-        	fire_direction[0]=(((float)x/(window_width))-0.5)*4;
-        	fire_direction[1]=(((((float)y/widnow_height)*(-1))+1)*2.75)+1;
-        	fire_direction[2]=10;
+        	fire_direction[0]=((float)x/(window_width));
+        	fire_direction[1]=((((float)y/widnow_height)*(-1))+1);
+        	fire_direction[2]=0;
         	kill();
         	break;
     }
@@ -212,19 +214,34 @@ void initiate_pray(){
 
 void kill(){
 	if(animation_ongoing){
-		//int maxx = 3;
-		//int maxz = 6, minz = -3;
+		int maxx = 3;
+		int maxz = 6, minz = -3;
+		float u[3];
+		u[0] = fire_direction[0];
+		u[1] = fire_direction[1];
+		u[2] = fire_direction[2];
 
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			float d = abs(fire_direction[0]*position_of_pray[i][0]+fire_direction[1]*position_of_pray[i][1]+fire_direction[2]*position_of_pray[i][2]);
-			d/=sqrt(fire_direction[0]*fire_direction[0]+fire_direction[1]*fire_direction[1]+fire_direction[2]*fire_direction[2]);
+			float p[4];
+			p[0] = u[0];
+			p[1] = u[1];
+			p[2] = u[2];
+			p[3] = position_of_pray[i][0]*u[0] + position_of_pray[i][1]*u[1] + position_of_pray[i][2]*u[2];
 
-			if(d<1){
+			float t = (p[3] - p[0]*fire_direction[0] - p[1]*fire_direction[1] -p[2]*fire_direction[2])/(p[0]*u[0] + p[1]*u[1] + p[2]*u[2]);
+
+			float point[3] = {u[0]*t + fire_direction[0], u[1]*t + fire_direction[1], u[2]*t + fire_direction[2]};
+
+			float d = sqrt((point[0]-position_of_pray[i][0])*(point[0]-position_of_pray[i][0]) + \
+				(point[1]-position_of_pray[i][1])*(point[1]-position_of_pray[i][1]) + \
+				(point[2]-position_of_pray[i][2])*(point[2]-position_of_pray[i][2]));
+
+			if(d<2){
 				pray_killed++;
-				printf("Kill count: %d\n",pray_killed);
-				position_of_pray[i][0] = 0;
+				printf("%f\n",d);
+				position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;;
 				position_of_pray[i][1] = 1;
-				position_of_pray[i][2] = 0;
+				position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 
 				if(position_of_pray[i][0]<0){
 					pray_movement[i][0] = (float)(rand() % 100)/100000;
@@ -234,8 +251,6 @@ void kill(){
 				}
 
 				pray_movement[i][1] = (float)(rand() % 100)/100000;
-
-				printf("%f %f %f\n",position_of_pray[i][0],position_of_pray[i][1],position_of_pray[i][2]);
 			}
 		}
 	}
