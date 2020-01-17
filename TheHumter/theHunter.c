@@ -10,19 +10,28 @@
 #define PI 3.1415926535897
 #define NUM_OF_TREES 14
 #define NUM_OF_BUSH 20
-#define MAX_NUM_OF_PRAY 10
+#define MAX_NUM_OF_PRAY 5
 
 static void on_display();
 static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int id);
 
+int window_width = 1200, widnow_height = 800;
+
+int pray_killed = 0;
+
 float animation_parameter = 0;
 float animation_ongoing = 0;
+float animation_set = 0;
 
 float position_of_trees[NUM_OF_TREES][3];
 float position_of_bush[NUM_OF_BUSH][3];
-float position_of_pray[MAX_NUM_OF_PRAY][4];
+float position_of_pray[MAX_NUM_OF_PRAY][3];
+
+float fire_direction[3];
+float pray_movement[MAX_NUM_OF_PRAY][3];
+float pray_speed = 1;
 
 void draw_pray(float x, float y, float z);
 void draw_floor();
@@ -30,6 +39,8 @@ void draw_tree(float x, float y, float z);
 void draw_bush(float x, float y, float z);
 void draw_terrain();
 void generate_pray();
+void update_pray_position();
+void kill();
 
 void generate_terain();
 void initiate_pray();
@@ -39,7 +50,7 @@ int main(int argc, char **argv){
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-    glutInitWindowSize(1200, 800);
+    glutInitWindowSize(window_width, widnow_height);
     glutInitWindowPosition(50, 50);
     glutCreateWindow(argv[0]);
 
@@ -79,6 +90,8 @@ void on_keyboard(unsigned char key, int x, int y) {
     switch(key) {
         case 'r': // restart animation
             animation_parameter = 0;
+            animation_set = 0;
+            pray_killed = 0;
             glutPostRedisplay();
             break;
         case 's': // stop animation
@@ -99,7 +112,10 @@ void on_keyboard(unsigned char key, int x, int y) {
         //print position of mouse
         case 'x':
         case 'X':
-        	printf("x: %d, y: %d",x,y);
+        	fire_direction[0]=(((float)x/(window_width))-0.5)*4;
+        	fire_direction[1]=(((((float)y/widnow_height)*(-1))+1)*2.75)+1 - 2;
+        	fire_direction[2]=10 - 15;
+        	kill();
         	break;
     }
 }
@@ -108,13 +124,40 @@ void on_timer(int id) {
     if (id != TIMER_ID)
     	return;
 
+    update_pray_position();
+
+    if(pray_killed % 3 == 0){
+    	pray_speed += 0.1;
+    }
+
     glutPostRedisplay();
 
     if (animation_ongoing)
         glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
 }
 
+void update_pray_position(){
+	if(animation_ongoing){
+		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
+			position_of_pray[i][0] += pray_movement[i][0]*pray_speed;
+			position_of_pray[i][1] += pray_movement[i][1]*pray_speed;
+			
+			if(position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
+				|| position_of_pray[i][1]<-1 || position_of_pray[i][0]>7){
+				animation_parameter = 0;
+	            animation_set = 0;
+	            pray_killed = 0;
+	            initiate_pray();
+				animation_ongoing = 0;
+	            glutPostRedisplay();
+			}
+		}
+	}
+}
+
 void on_reshape(int width, int height) {
+	window_width = width;
+	widnow_height = height;
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -142,15 +185,36 @@ void generate_terain(){
 
 //inicijalne pozcicije plena
 void initiate_pray(){
-	int maxx = 7;
-	int maxz = 7, minz = -5;
+	int maxx = 3;
+	int maxz = 6, minz = -3;
+	pray_speed = 0.001;
 
-	if(!animation_parameter){
+	if(!animation_parameter & !animation_set){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
 			position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
-			position_of_pray[i][1] = -1;
+			position_of_pray[i][1] = 1;
 			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
-			position_of_pray[i][2] = 0;
+
+			if(position_of_pray[i][0]<0){
+				pray_movement[i][0] = (float)(rand() % 100)/100000;
+			}
+			else{
+				pray_movement[i][0] = -(float)(rand() % 100)/100000;
+			}
+
+			pray_movement[i][1] = (float)(rand() % 100)/100000;
+			pray_movement[i][2] = 0;
+		}
+	}
+
+	animation_set = 1;
+}
+
+void kill(){
+	printf("KILL IT!\n");
+	if(animation_ongoing){
+		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
+			
 		}
 	}
 }
