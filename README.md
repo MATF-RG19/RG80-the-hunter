@@ -13,11 +13,18 @@ Igrica pocinje sa metama koje se krecu relativno sporom brzim, ali posle svakih 
 
 Kontrole:
 G - pokrece igricu
+
 T - pauzira igricu
+
 R - restaruje igricu
+
 ESC - izlazi iz igrice
 
+
 A - aktivira oruzije okrenuto ka donjoj levoj cetvrtini vidika
+
 S - aktivira oruzije okrenuto ka donjoj desnoj cetvrtini vidika
+
 Q - aktivira oruzije okrenuto ka gornjoj levoj cetvrtini vidika
+
 W - aktivira oruzije okrenuto ka gornjoj desnoj cetvrtini vidika
