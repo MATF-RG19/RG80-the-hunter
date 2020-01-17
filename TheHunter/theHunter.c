@@ -8,9 +8,9 @@
 #define TIMER_ID 0
 
 #define PI 3.1415926535897
-#define NUM_OF_TREES 14
-#define NUM_OF_BUSH 20
-#define MAX_NUM_OF_PRAY 5
+#define NUM_OF_TREES 12
+#define NUM_OF_BUSH 15
+#define MAX_NUM_OF_PRAY 10
 
 static void on_display();
 static void on_reshape(int width, int height);
@@ -19,24 +19,28 @@ static void on_timer(int id);
 
 int window_width = 1200, widnow_height = 800;
 
-int pray_killed = 0;
+int pray_killed = 0, level = 1;
 
+//parametri za kontrolu animacije
 float animation_parameter = 0;
 float animation_ongoing = 0;
 float animation_set = 0;
+int cooldown_timer = 0;
 
+//Variables for keeping track of positions
 float position_of_trees[NUM_OF_TREES][3];
-float position_of_bush[NUM_OF_BUSH][3];
+float position_of_bush[NUM_OF_BUSH][4];
 float position_of_pray[MAX_NUM_OF_PRAY][3];
 
-float fire_direction[3];
+//movment variables
 float pray_movement[MAX_NUM_OF_PRAY][3];
 float pray_speed = 1;
 
+//function declarations
 void draw_pray(float x, float y, float z);
 void draw_floor();
 void draw_tree(float x, float y, float z);
-void draw_bush(float x, float y, float z);
+void draw_bush(float x, float y, float z, float rot);
 void draw_terrain();
 void generate_pray();
 void update_pray_position();
@@ -46,7 +50,7 @@ void generate_terain();
 void initiate_pray();
 
 int main(int argc, char **argv){
-    // Inicijalizuje se GLUT.
+    // Initialization of GLUT.
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
@@ -77,6 +81,8 @@ int main(int argc, char **argv){
 
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
+
+    //setin the inital values for the terain
     generate_terain();
     initiate_pray();
 
@@ -96,8 +102,8 @@ void on_keyboard(unsigned char key, int x, int y) {
             generate_terain();
             glutPostRedisplay();
             break;
-        case 's': // stop animation
-        case 'S':
+        case 't': // stop animation
+        case 'T':
             animation_ongoing = 0;
             break;
         case 'g': // start animation
@@ -111,13 +117,30 @@ void on_keyboard(unsigned char key, int x, int y) {
         case 27:
           exit(0);
           break;
-        //print position of mouse
-        case 'x':
-        case 'X':
-        	fire_direction[0]=((float)x/(window_width)-0.5)*4;
-        	fire_direction[1]=((((float)y/widnow_height)*(-1))+1)*2.75 +1;
-        	fire_direction[2]=10;
-        	kill();
+        //Kill commands
+        case 'a':
+        case 'A':
+        	kill(0);
+        	if(!cooldown_timer)
+        		cooldown_timer =1;
+        	break;
+    	case 's':
+        case 'S':
+        	kill(1);
+        	if(!cooldown_timer)
+        		cooldown_timer =1;
+        	break;
+    	case 'w':
+        case 'W':
+        	kill(3);
+        	if(!cooldown_timer)
+        		cooldown_timer =1;
+        	break;
+    	case 'q':
+        case 'Q':
+        	kill(2);
+        	if(!cooldown_timer)
+        		cooldown_timer =1;
         	break;
     }
 }
@@ -128,8 +151,19 @@ void on_timer(int id) {
 
     update_pray_position();
 
-    if(pray_killed % 3 == 0){
-    	pray_speed += 0.1;
+    //increse lvl dificulty
+    if(pray_killed % level*5 == 0){
+    	pray_speed += 0.2;
+    	level++;
+    }
+
+    //cooldown control
+    if(cooldown_timer){
+    	cooldown_timer++;
+    }
+
+    if(cooldown_timer>2*TIMER_INTERVAL){
+    	cooldown_timer = 0;
     }
 
     glutPostRedisplay();
@@ -138,6 +172,7 @@ void on_timer(int id) {
         glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
 }
 
+//update pray position after movement
 void update_pray_position(){
 	if(animation_ongoing){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
@@ -160,24 +195,27 @@ void update_pray_position(){
 void on_reshape(int width, int height) {
 	window_width = width;
 	widnow_height = height;
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, window_width, widnow_height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    gluPerspective(30, (float) width/height, 1, 20);
+    gluPerspective(30, (float) window_width/widnow_height, 1, 20);
 }
 
-//generise pozicije drveca i zbunja
+//generate initial positions of trees and bushes
 void generate_terain(){
 	int maxx=6;
 	int maxz=7, minz=-5;
 
+	//generate bush positions and rotation
 	for(int i=0; i<NUM_OF_BUSH; i++){
 		position_of_bush[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
 		position_of_bush[i][1] = 1.2;
 		position_of_bush[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+		position_of_bush[i][3] = rand()%360;
 	}
 
+	//generate tree position and height
 	for(int i=0; i<NUM_OF_TREES; i++){
 		position_of_trees[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
 		position_of_trees[i][1] = 2 + (float)(rand() % 300)/(float)100;
@@ -185,7 +223,7 @@ void generate_terain(){
 	}
 }
 
-//inicijalne pozcicije plena
+//initial positions of pray and movement vectors
 void initiate_pray(){
 	int maxx = 3;
 	int maxz = 6, minz = -3;
@@ -212,27 +250,48 @@ void initiate_pray(){
 	animation_set = 1;
 }
 
-void kill(){
-	if(animation_ongoing){
+//sign function
+int sgn(float num){
+	if(num>0){
+		return 1;
+	}
+	if(num<0){
+		return -1;
+	}
+	return 0;
+}
+
+//function for killing pray in one quater of the map
+void kill(int q){
+	if(animation_ongoing && !cooldown_timer){
 		int maxx = 3;
 		int maxz = 6, minz = -3;
 
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			float mind=101;
-			int i = 0;
-			float dis = 0;
-			for(int z = 6; z>-3;z-=0.2){
-				float x = fire_direction[0] + (i*0.1) - position_of_pray[i][0];
-				float y = fire_direction[1] + (i*0.1) - position_of_pray[i][1];
-				dis = sqrt(x*x + y*y + (z - position_of_pray[i][2])*(z - position_of_pray[i][2]));
-				
-				i++;
-				if(dis < mind){
-					mind = dis;
-				}
+			int killed = 0;
+			switch(q){
+				case 0:
+					if(position_of_pray[i][1]>1 && position_of_pray[i][1]<=4 && position_of_pray[i][0]<=0)
+						killed = 1;
+					break;
+				case 1:
+					if(position_of_pray[i][1]>1 && position_of_pray[i][1]<=4 && position_of_pray[i][0]>=0)
+						killed = 1;
+					break;
+				case 2:
+					if(position_of_pray[i][1]>=3 && position_of_pray[i][0]<=0)
+						killed = 1;
+					break;
+				case 3:
+					if(position_of_pray[i][1]>=3 && position_of_pray[i][0]>=0)
+						killed = 1;
+					break;
+				default:
+				break;
 			}
 
-			if(mind<2){
+			//add to kill counter and re-position the pray to the start location and gives them a new movement vector
+			if(killed){
 				pray_killed++;
 
 				position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;;
@@ -252,11 +311,10 @@ void kill(){
 	}
 }
 
-//crtamo tlo
+//drawing the floor
 void draw_floor(){
     glPushMatrix();
     
-    //Crtamo podlogu
     glPushMatrix();
         glTranslatef(0, 1, 0);
         glScalef(30, 0.1, 30);
@@ -267,34 +325,38 @@ void draw_floor(){
     glPopMatrix();
 }
 
-//funkcija koja definise izgled drveta
+//tree making function
 void draw_tree(float x, float h, float z){
 	glPushMatrix();
    
+   //tree body
    	glTranslatef(x,h/(float)2,z);
    	glPushMatrix();
    		glColor3f(0.8, 0.5, 0.5);
-   		glScalef(0.1,h,0.1);
+   		glScalef(floor(h)*0.03,h,floor(h)*0.03);
    		glutSolidCube(1);
    	glPopMatrix();
 
+   	//tree top
    	glPushMatrix();
    		glTranslatef(0,h/(float)2 + 0.5,0);
    		glColor3f(0.2, 0.8, 0.3);
-   		glScalef(0.6,0.6,0.6);
+   		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
 
     glPopMatrix();
 }
 
-//funkcija koja definise izgled zbuna
-void draw_bush(float x, float y, float z){
+//bush making function
+void draw_bush(float x, float y, float z, float rot){
 	glPushMatrix();
+
+	glRotatef(rot,0,1,0);
    
    	glTranslatef(x,y,z);
    	glPushMatrix();
-   		glColor3f(0.3, 0.7, 0.3);
+   		glColor3f(0.3, 0.6, 0.3);
    		glScalef(0.6,0.4,0.6);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
@@ -302,6 +364,20 @@ void draw_bush(float x, float y, float z){
    	glPushMatrix();
    		glColor3f(0.3, 0.7, 0.3);
    		glTranslatef(0,0,0.6);
+   		glScalef(0.3,0.3,0.3);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
+   	glPushMatrix();
+   		glColor3f(0.3, 0.7, 0.3);
+   		glTranslatef(0.1,0,-0.55);
+   		glScalef(0.3,0.3,0.3);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
+   	glPushMatrix();
+   		glColor3f(0.1, 0.3, 0.2);
+   		glTranslatef(0.3,0,-0.55);
    		glScalef(0.3,0.3,0.3);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
@@ -323,24 +399,69 @@ void draw_bush(float x, float y, float z){
     glPopMatrix();
 }
 
-//funkcija koja definise izgled plena
+//pray making function
 void draw_pray(float x, float y, float z){
     glPushMatrix();
    
    	glTranslatef(x, y, z);
-   //telo
+   //body
     glPushMatrix();
         glScalef(0.9, 0.8, 1.1);
         glColor3f(0.8, 0.8, 0.8);
         glutSolidSphere(0.1, 64, 64);
     glPopMatrix();
 
-    //glava
+    //head
     glPushMatrix();
         glTranslatef(0, 0.02, 0.15);
         glScalef(0.5, 0.5, 0.5);
         glColor3f(0.25, 0.25, 0.25);
         glutSolidSphere(0.1, 64, 64);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(0.05, 0.02, 0.15);
+        glRotatef(20,0,0,1);
+        glScalef(0.2, 0.4, 0.1);
+        glColor3f(0.6, 0.6, 0.6);
+        glutSolidSphere(0.1, 64, 64);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(-0.05, 0.02, 0.15);
+        glRotatef(-20,0,0,1);
+        glScalef(0.2, 0.4, 0.1);
+        glColor3f(0.6, 0.6, 0.6);
+        glutSolidSphere(0.1, 64, 64);
+    glPopMatrix();
+
+    //legs
+    glPushMatrix();
+        glTranslatef(0.05, -0.1, 0.05);
+        glScalef(0.02, 0.1, 0.02);
+        glColor3f(0.25, 0.25, 0.25);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(-0.05, -0.1, 0.05);
+        glScalef(0.02, 0.1, 0.02);
+        glColor3f(0.25, 0.25, 0.25);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(-0.05, -0.1, -0.05);
+        glScalef(0.02, 0.1, 0.02);
+        glColor3f(0.25, 0.25, 0.25);
+        glutSolidCube(1);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(0.05, -0.1, -0.05);
+        glScalef(0.02, 0.1, 0.02);
+        glColor3f(0.25, 0.25, 0.25);
+        glutSolidCube(1);
     glPopMatrix();
 
     glPopMatrix();
@@ -352,20 +473,21 @@ void on_display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    //pozicija kamere
+    //camera position
     gluLookAt(0, 2, 15,
               0, 3, 0,
               0, 1, 0);
 
-    //okruzenje
+    //draw the static scene
     draw_terrain();
 
+    //draw the dinamic elements
     generate_pray();
 
     glutSwapBuffers();
 }
 
-//postavlja zbunje i drvece na odgovarajuce pozicije
+//sets up the static terrain and props
 void draw_terrain(){
 	glPushMatrix();
 
@@ -375,7 +497,7 @@ void draw_terrain(){
 
     for(int i = 0; i < NUM_OF_BUSH; i++){
     	glPushMatrix();
-    		draw_bush(position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2]);
+    		draw_bush(position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2], position_of_bush[i][3]);
     	glPopMatrix();
     }
 
@@ -388,7 +510,7 @@ void draw_terrain(){
     glPopMatrix();
 }
 
-//postavlja plen na ogovarajuce pocetne pozicije
+//sets the pray in positions
 void generate_pray(){
 	glPushMatrix();
 
