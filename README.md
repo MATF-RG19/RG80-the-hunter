@@ -12,19 +12,21 @@ ________________________________________________________________________________
 Igrica pocinje sa metama koje se krecu relativno sporom brzim, ali posle svakih 5 ubistava brzina meta raste.
 
 Kontrole:
-G - pokrece igricu
+**G** - pokrece igricu
 
-T - pauzira igricu
+**T** - pauzira igricu
 
-R - restaruje igricu
+**R** - restaruje igricu
 
-ESC - izlazi iz igrice
+**ESC** - izlazi iz igrice
 
 
-A - aktivira oruzije okrenuto ka donjoj levoj cetvrtini vidika
+**A** - aktivira oruzije okrenuto ka donjoj levoj cetvrtini vidika
 
-S - aktivira oruzije okrenuto ka donjoj desnoj cetvrtini vidika
+**S** - aktivira oruzije okrenuto ka donjoj desnoj cetvrtini vidika
 
-Q - aktivira oruzije okrenuto ka gornjoj levoj cetvrtini vidika
+**Q** - aktivira oruzije okrenuto ka gornjoj levoj cetvrtini vidika
 
-W - aktivira oruzije okrenuto ka gornjoj desnoj cetvrtini vidika
+**W** - aktivira oruzije okrenuto ka gornjoj desnoj cetvrtini vidika
+
+NAPOMENA: Pozicija tastera, za ciljanje, na tastaturi odgovara kvadrantu koji unistava u igrici.
