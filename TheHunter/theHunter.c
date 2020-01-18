@@ -25,7 +25,7 @@ int pray_killed = 0, level = 1;
 float animation_parameter = 0;
 float animation_ongoing = 0;
 float animation_set = 0;
-int cooldown_timer = 0;
+int cooldown_timer = 0, cooldown_timer_space = 0;
 
 //Variables for keeping track of positions
 float position_of_trees[NUM_OF_TREES][3];
@@ -98,6 +98,8 @@ void on_keyboard(unsigned char key, int x, int y) {
             animation_parameter = 0;
             animation_set = 0;
             pray_killed = 0;
+            cooldown_timer_space = 0;
+            cooldown_timer = 0;
             initiate_pray();
             generate_terain();
             glutPostRedisplay();
@@ -120,27 +122,37 @@ void on_keyboard(unsigned char key, int x, int y) {
         //Kill commands
         case 'a':
         case 'A':
-        	kill(0);
-        	if(!cooldown_timer)
+        	if(!cooldown_timer){
+				kill(0);
         		cooldown_timer =1;
+        	}
         	break;
     	case 's':
         case 'S':
-        	kill(1);
-        	if(!cooldown_timer)
+        	if(!cooldown_timer){
+        		kill(1);
         		cooldown_timer =1;
+        	}
         	break;
     	case 'w':
         case 'W':
-        	kill(3);
-        	if(!cooldown_timer)
+        	if(!cooldown_timer){
+        		kill(3);
         		cooldown_timer =1;
+        	}
         	break;
     	case 'q':
         case 'Q':
-        	kill(2);
-        	if(!cooldown_timer)
+        	if(!cooldown_timer){
+        		kill(2);
         		cooldown_timer =1;
+        	}
+        	break;
+    	case 32:
+        	if(!cooldown_timer_space){
+        		kill(4);
+        		cooldown_timer_space =1;
+        	}
         	break;
     }
 }
@@ -162,8 +174,16 @@ void on_timer(int id) {
     	cooldown_timer++;
     }
 
+    if(cooldown_timer_space){
+    	cooldown_timer_space++;
+    }
+
     if(cooldown_timer>2*TIMER_INTERVAL){
     	cooldown_timer = 0;
+    }
+
+    if(cooldown_timer_space>10*TIMER_INTERVAL){
+    	cooldown_timer_space = 0;
     }
 
     glutPostRedisplay();
@@ -263,7 +283,7 @@ int sgn(float num){
 
 //function for killing pray in one quater of the map
 void kill(int q){
-	if(animation_ongoing && !cooldown_timer){
+	if(animation_ongoing){
 		int maxx = 3;
 		int maxz = 6, minz = -3;
 
@@ -287,6 +307,7 @@ void kill(int q){
 						killed = 1;
 					break;
 				default:
+					killed = 1;
 				break;
 			}
 
