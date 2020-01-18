@@ -29,4 +29,10 @@ Kontrole:
 
 **W** - aktivira oruzije okrenuto ka gornjoj desnoj cetvrtini vidika
 
+**SPACE** - unistava sve neprijatelje na mapi
+
 NAPOMENA: Pozicija tastera, za ciljanje, na tastaturi odgovara kvadrantu koji unistava u igrici.
+
+Osnovna oruzija ASQW se ne mogu koristi kraci preiod posle koriscenja jednog od njih.
+
+Ultimativno oruzije SPACE se ne moze koristiti duzi period posle aktivacije.
