@@ -15,7 +15,7 @@
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
-#define FILENAME1 "bmp/leaves.bmp"
+#define FILENAME1 "bmp/grass.bmp"
 
 //texture identifier
 static GLuint names[2];
@@ -46,15 +46,12 @@ float pray_movement[MAX_NUM_OF_PRAY][3];
 float pray_speed = 1;
 
 //function declarations
-void draw_pray(float x, float y, float z);
 void draw_floor();
 void draw_tree(float x, float y, float z);
-void draw_bush(float x, float y, float z, float rot);
 void draw_terrain();
 void generate_pray();
 void update_pray_position();
 void kill();
-void draw_cube_with_texture(float x, float h, float z, GLuint tex);
 
 void generate_terain();
 void initiate_pray();
@@ -124,13 +121,13 @@ static void initialize(void){
 
     glBindTexture(GL_TEXTURE_2D, names[0]);
     glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_S, GL_CLAMP);
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_T, GL_CLAMP);
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                  image->width, image->height, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
@@ -403,10 +400,9 @@ void draw_floor(){
     glPushMatrix();
     
     glPushMatrix();
-        glTranslatef(0, 1, 0);
+    	glTranslatef(-15,1,15);
         glScalef(30, 0.1, 30);
-        glColor3f(0.3, 0.8, 0.3);
-        glutSolidCube(1);
+        draw_cube_with_texture(30, 1, 30, names[1]);
     glPopMatrix();
 
     glPopMatrix();
@@ -416,140 +412,23 @@ void draw_floor(){
 void draw_tree(float x, float h, float z){
 	glPushMatrix();
    
-   //tree body
-   	glTranslatef(x,h/(float)2,z);
+   	//Position of tree
+   	glTranslatef(x,0,z);
+
+   	//tree body
+   	float a = floor(h)*0.03;
    	glPushMatrix();
-   		glColor3f(0.8, 0.5, 0.5);
-   		glScalef(floor(h)*0.03,h,floor(h)*0.03);
-   		glutSolidCube(1);
+   		glScalef(a,h,a);
+   		draw_cube_with_texture(1, h, 1, names[0]);
    	glPopMatrix();
 
    	//tree top
    	glPushMatrix();
-   		glTranslatef(0,h/(float)2 + 0.5,0);
+   		glTranslatef(0,h + 0.5,0);
    		glColor3f(0.2, 0.8, 0.3);
    		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
-
-    glPopMatrix();
-}
-
-//bush making function
-void draw_bush(float x, float y, float z, float rot){
-	glPushMatrix();
-
-	glRotatef(rot,0,1,0);
-   
-   	glTranslatef(x,y,z);
-   	glPushMatrix();
-   		glColor3f(0.3, 0.6, 0.3);
-   		glScalef(0.6,0.4,0.6);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-   	glPushMatrix();
-   		glColor3f(0.3, 0.7, 0.3);
-   		glTranslatef(0,0,0.6);
-   		glScalef(0.3,0.3,0.3);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-   	glPushMatrix();
-   		glColor3f(0.3, 0.7, 0.3);
-   		glTranslatef(0.1,0,-0.55);
-   		glScalef(0.3,0.3,0.3);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-   	glPushMatrix();
-   		glColor3f(0.1, 0.3, 0.2);
-   		glTranslatef(0.3,0,-0.55);
-   		glScalef(0.3,0.3,0.3);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-   	glPushMatrix();
-   		glColor3f(0.3, 0.7, 0.3);
-   		glTranslatef(-0.6,0,0);
-   		glScalef(0.2,0.2,0.2);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-   	glPushMatrix();
-   		glColor3f(0.3, 0.7, 0.3);
-   		glTranslatef(0.6,0,0);
-   		glScalef(0.3,0.3,0.2);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-    glPopMatrix();
-}
-
-//pray making function
-void draw_pray(float x, float y, float z){
-    glPushMatrix();
-   
-   	glTranslatef(x, y, z);
-   //body
-    glPushMatrix();
-        glScalef(0.9, 0.8, 1.1);
-        glColor3f(0.8, 0.8, 0.8);
-        glutSolidSphere(0.1, 64, 64);
-    glPopMatrix();
-
-    //head
-    glPushMatrix();
-        glTranslatef(0, 0.02, 0.15);
-        glScalef(0.5, 0.5, 0.5);
-        glColor3f(0.25, 0.25, 0.25);
-        glutSolidSphere(0.1, 64, 64);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(0.05, 0.02, 0.15);
-        glRotatef(20,0,0,1);
-        glScalef(0.2, 0.4, 0.1);
-        glColor3f(0.6, 0.6, 0.6);
-        glutSolidSphere(0.1, 64, 64);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(-0.05, 0.02, 0.15);
-        glRotatef(-20,0,0,1);
-        glScalef(0.2, 0.4, 0.1);
-        glColor3f(0.6, 0.6, 0.6);
-        glutSolidSphere(0.1, 64, 64);
-    glPopMatrix();
-
-    //legs
-    glPushMatrix();
-        glTranslatef(0.05, -0.1, 0.05);
-        glScalef(0.02, 0.1, 0.02);
-        glColor3f(0.25, 0.25, 0.25);
-        glutSolidCube(1);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(-0.05, -0.1, 0.05);
-        glScalef(0.02, 0.1, 0.02);
-        glColor3f(0.25, 0.25, 0.25);
-        glutSolidCube(1);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(-0.05, -0.1, -0.05);
-        glScalef(0.02, 0.1, 0.02);
-        glColor3f(0.25, 0.25, 0.25);
-        glutSolidCube(1);
-    glPopMatrix();
-
-    glPushMatrix();
-        glTranslatef(0.05, -0.1, -0.05);
-        glScalef(0.02, 0.1, 0.02);
-        glColor3f(0.25, 0.25, 0.25);
-        glutSolidCube(1);
-    glPopMatrix();
 
     glPopMatrix();
 }
@@ -584,7 +463,7 @@ void draw_terrain(){
 
     for(int i = 0; i < NUM_OF_BUSH; i++){
     	glPushMatrix();
-    		draw_bush(position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2], position_of_bush[i][3]);
+    		make_bush(position_of_bush[i][0], position_of_bush[i][1], position_of_bush[i][2], position_of_bush[i][3]);
     	glPopMatrix();
     }
 
