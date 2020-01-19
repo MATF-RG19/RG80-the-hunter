@@ -3,19 +3,28 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+#include "image.h"
+#include "drawWithTex.h"
 
 #define TIMER_INTERVAL 20
 #define TIMER_ID 0
 
-#define PI 3.1415926535897
 #define NUM_OF_TREES 12
 #define NUM_OF_BUSH 15
 #define MAX_NUM_OF_PRAY 10
+
+//texture names
+#define FILENAME0 "bmp/bark.bmp"
+#define FILENAME1 "bmp/leaves.bmp"
+
+//texture identifier
+static GLuint names[2];
 
 static void on_display();
 static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_timer(int id);
+static void initialize(void);
 
 int window_width = 1200, widnow_height = 800;
 
@@ -45,6 +54,7 @@ void draw_terrain();
 void generate_pray();
 void update_pray_position();
 void kill();
+void draw_cube_with_texture(float x, float h, float z, GLuint tex);
 
 void generate_terain();
 void initiate_pray();
@@ -62,7 +72,23 @@ int main(int argc, char **argv){
     glutReshapeFunc(on_reshape);
     glutKeyboardFunc(on_keyboard);
 
-    glEnable(GL_DEPTH_TEST);
+    initialize();
+
+    //setin the inital values for the terain
+    generate_terain();
+    initiate_pray();
+
+    glutMainLoop();
+
+    return 0;
+}
+
+static void initialize(void){
+
+	glClearColor(0.3, 0.4, 0.8, 1);
+
+	//Light setup
+	glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,1);
 
@@ -79,17 +105,57 @@ int main(int argc, char **argv){
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
+    //object representing a texture loaded from a file
+    Image * image;
+
+    //Turn on textures
+    glEnable(GL_TEXTURE_2D);
+
+    glTexEnvf(GL_TEXTURE_ENV,
+              GL_TEXTURE_ENV_MODE,
+              GL_REPLACE);
+
+    image = image_init(0, 0);
+
+    //make and set up textures
+    image_read(image, FILENAME0);
+
+    glGenTextures(2, names);
+
+    glBindTexture(GL_TEXTURE_2D, names[0]);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+    image_read(image, FILENAME1);
+
+    glBindTexture(GL_TEXTURE_2D, names[1]);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+    //turn off active texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //destry image obj as its no longer needed
+    image_done(image);
+
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
-
-    //setin the inital values for the terain
-    generate_terain();
-    initiate_pray();
-
-    glClearColor(0.3, 0.4, 0.8, 1);
-    glutMainLoop();
-
-    return 0;
 }
 
 void on_keyboard(unsigned char key, int x, int y) {

@@ -1,0 +1,1 @@
+void draw_cube_with_texture(float x, float h, float z, GLuint tex);

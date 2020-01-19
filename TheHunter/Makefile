@@ -4,8 +4,8 @@ CFLAGS  = -g -Wall -I/usr/X11R6/include -I/usr/pkg/include
 LDFLAGS = -L/usr/X11R6/lib -L/usr/pkg/lib
 LDLIBS  = -lm -lglut -lGLU -lGL
 
-$(PROGRAM): theHunter.o
-	$(CC) $(LDFLAGS) -o $(PROGRAM) theHunter.o $(LDLIBS)
+$(PROGRAM): theHunter.o image.o drawWithTex.o
+	$(CC) $(LDFLAGS) -o $(PROGRAM) image.o drawWithTex.o theHunter.o $(LDLIBS)
 
 .PHONY: beauty clean dist
 
