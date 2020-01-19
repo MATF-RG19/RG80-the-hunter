@@ -6,12 +6,14 @@
 #include "image.h"
 #include "drawWithTex.h"
 
-#define TIMER_INTERVAL 20
+#define TIMER_INTERVAL 24
 #define TIMER_ID 0
 
 #define NUM_OF_TREES 12
 #define NUM_OF_BUSH 15
-#define MAX_NUM_OF_PRAY 10
+#define MAX_NUM_OF_PRAY 15
+
+#define MAX_SPEED 2
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
@@ -227,7 +229,7 @@ void on_timer(int id) {
     update_pray_position();
 
     //increse lvl dificulty
-    if(pray_killed % level*5 == 0){
+    if(pray_killed % level*3 == 0){
     	pray_speed += 0.2;
     	level++;
     }
@@ -245,7 +247,7 @@ void on_timer(int id) {
     	cooldown_timer = 0;
     }
 
-    if(cooldown_timer_space>10*TIMER_INTERVAL){
+    if(cooldown_timer_space>15*TIMER_INTERVAL){
     	cooldown_timer_space = 0;
     }
 
@@ -259,8 +261,9 @@ void on_timer(int id) {
 void update_pray_position(){
 	if(animation_ongoing){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			position_of_pray[i][0] += pray_movement[i][0]*pray_speed;
-			position_of_pray[i][1] += pray_movement[i][1]*pray_speed;
+			position_of_pray[i][0] += (pray_movement[i][0]*pray_speed)%MAX_SPEED;
+			position_of_pray[i][1] += (pray_movement[i][1]*pray_speed)%MAX_SPEED;
+			position_of_pray[i][2] += (pray_movement[i][2]*pray_speed)%(MAX_SPEED/2);
 			
 			if(position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
 				|| position_of_pray[i][1]<-1 || position_of_pray[i][0]>7){
@@ -319,14 +322,14 @@ void initiate_pray(){
 			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 
 			if(position_of_pray[i][0]<0){
-				pray_movement[i][0] = (float)(rand() % 100)/100000;
+				pray_movement[i][0] = (float)(rand() % 100)/100;
 			}
 			else{
-				pray_movement[i][0] = -(float)(rand() % 100)/100000;
+				pray_movement[i][0] = -(float)(rand() % 100)/100;
 			}
 
-			pray_movement[i][1] = (float)(rand() % 100)/100000;
-			pray_movement[i][2] = 0;
+			pray_movement[i][1] = (float)(rand() % 100)/100;
+			pray_movement[i][2] = (float)(rand() % 100)/1000;
 		}
 	}
 
