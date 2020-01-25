@@ -52,7 +52,6 @@ float pray_speed = START_SPEED;
 float move = 0;
 
 //function declarations
-void draw_tree(float x, float y, float z);
 void draw_terrain();
 void generate_pray();
 void update_pray_position();
@@ -175,6 +174,7 @@ static void initialize(void){
 void on_keyboard(unsigned char key, int x, int y) {
     switch(key) {
         case 'r': // restart animation
+        case 'R':
             printf("Score: %d | Level: %d\n", pray_killed, level);
             animation_parameter = 0;
             lives = START_LIVES;
@@ -456,31 +456,6 @@ void kill(int q){
 	}
 }
 
-//tree making function
-void draw_tree(float x, float h, float z){
-	glPushMatrix();
-   
-   	//Position of tree
-   	glTranslatef(x,0,z);
-
-   	//tree body
-   	float a = floor(h)*0.03;
-   	glPushMatrix();
-   		glScalef(a,h,a);
-   		draw_cube_with_texture(1, h, 1, names[0]);
-   	glPopMatrix();
-
-   	//tree top
-   	glPushMatrix();
-   		glTranslatef(0,h + 0.5,0);
-   		glColor3f(0.2, 0.8, 0.3);
-   		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
-   		glutSolidSphere(1,32,32);
-   	glPopMatrix();
-
-    glPopMatrix();
-}
-
 void on_display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -528,7 +503,7 @@ void draw_terrain(){
 
     for(int i = 0; i < NUM_OF_TREES; i++){
     	glPushMatrix();
-    		draw_tree(position_of_trees[i][0], position_of_trees[i][1], position_of_trees[i][2]);
+    		draw_tree(position_of_trees[i][0], position_of_trees[i][1], position_of_trees[i][2], names[0]);
     	glPopMatrix();
     }
 

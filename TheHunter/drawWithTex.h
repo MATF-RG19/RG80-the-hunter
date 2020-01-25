@@ -12,3 +12,6 @@ void draw_heart();
 
 //Draw floor
 void draw_floor(GLuint name);
+
+//Tree making function
+void draw_tree(float x, float h, float z, GLuint name);

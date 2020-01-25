@@ -274,3 +274,27 @@ void draw_floor(GLuint name){
 
     glPopMatrix();
 }
+
+void draw_tree(float x, float h, float z, GLuint name){
+	glPushMatrix();
+   
+   	//Position of tree
+   	glTranslatef(x,0,z);
+
+   	//tree body
+   	float a = floor(h)*0.03;
+   	glPushMatrix();
+   		glScalef(a,h,a);
+   		draw_cube_with_texture(1, h, 1, name);
+   	glPopMatrix();
+
+   	//tree top
+   	glPushMatrix();
+   		glTranslatef(0,h + 0.5,0);
+   		glColor3f(0.2, 0.8, 0.3);
+   		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
+   		glutSolidSphere(1,32,32);
+   	glPopMatrix();
+
+    glPopMatrix();
+}
