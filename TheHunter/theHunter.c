@@ -13,7 +13,7 @@
 #define NUM_OF_BUSH 15
 #define MAX_NUM_OF_PRAY 15
 
-#define MAX_SPEED 2
+#define MAX_SPEED 1
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
@@ -61,7 +61,7 @@ void initiate_pray();
 int main(int argc, char **argv){
     // Initialization of GLUT.
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
 
     glutInitWindowSize(window_width, widnow_height);
     glutInitWindowPosition(50, 50);
@@ -261,9 +261,9 @@ void on_timer(int id) {
 void update_pray_position(){
 	if(animation_ongoing){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			position_of_pray[i][0] += (pray_movement[i][0]*pray_speed)%MAX_SPEED;
-			position_of_pray[i][1] += (pray_movement[i][1]*pray_speed)%MAX_SPEED;
-			position_of_pray[i][2] += (pray_movement[i][2]*pray_speed)%(MAX_SPEED/2);
+			pray_movement[i][0]*pray_speed > MAX_SPEED ? (position_of_pray[i][0] += MAX_SPEED) : (position_of_pray[i][0] += pray_movement[i][0]*pray_speed);
+			pray_movement[i][1]*pray_speed > MAX_SPEED ? (position_of_pray[i][1] += MAX_SPEED) : (position_of_pray[i][1] += pray_movement[i][1]*pray_speed);
+			pray_movement[i][2]*pray_speed > (MAX_SPEED/2) ? (position_of_pray[i][2] += MAX_SPEED) : (position_of_pray[i][2] += pray_movement[i][2]*pray_speed);
 			
 			if(position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
 				|| position_of_pray[i][1]<-1 || position_of_pray[i][0]>7){
@@ -311,7 +311,7 @@ void generate_terain(){
 
 //initial positions of pray and movement vectors
 void initiate_pray(){
-	int maxx = 3;
+	int maxx = 6;
 	int maxz = 6, minz = -3;
 	pray_speed = 0.001;
 
@@ -322,14 +322,14 @@ void initiate_pray(){
 			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 
 			if(position_of_pray[i][0]<0){
-				pray_movement[i][0] = (float)(rand() % 100)/100;
+				pray_movement[i][0] = (float)(rand() % 100)/100000;
 			}
 			else{
-				pray_movement[i][0] = -(float)(rand() % 100)/100;
+				pray_movement[i][0] = -(float)(rand() % 100)/100000;
 			}
 
-			pray_movement[i][1] = (float)(rand() % 100)/100;
-			pray_movement[i][2] = (float)(rand() % 100)/1000;
+			pray_movement[i][1] = (float)(rand() % 100)/100000;
+			pray_movement[i][2] = (float)(rand() % 100)/100000;
 		}
 	}
 
@@ -428,7 +428,7 @@ void draw_tree(float x, float h, float z){
    	//tree top
    	glPushMatrix();
    		glTranslatef(0,h + 0.5,0);
-   		glColor3f(0.2, 0.8, 0.3);
+   		glColor4f(0.2, 0.8, 0.3,1);
    		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
