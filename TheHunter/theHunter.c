@@ -4,7 +4,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include "image.h"
-#include "drawWithTex.h"
 
 #define TIMER_INTERVAL 24
 #define TIMER_ID 0
