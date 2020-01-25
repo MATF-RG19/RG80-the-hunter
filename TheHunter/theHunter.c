@@ -12,6 +12,8 @@
 #define NUM_OF_TREES 12
 #define NUM_OF_BUSH 15
 #define MAX_NUM_OF_PRAY 15
+#define MAX_LIVES 3
+#define IMUNE_CD 50
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
@@ -28,7 +30,7 @@ static void initialize(void);
 
 int window_width = 1200, widnow_height = 800;
 
-int pray_killed = 0, level = 1;
+int pray_killed = 0, level = 1, lives = 3, live_cd = 0;
 
 //parametri za kontrolu animacije
 float animation_parameter = 0;
@@ -43,7 +45,7 @@ float position_of_pray[MAX_NUM_OF_PRAY][3];
 
 //movment variables
 float pray_movement[MAX_NUM_OF_PRAY][3];
-float pray_speed = 1;
+float pray_speed = 5.0;
 
 //function declarations
 void draw_floor();
@@ -159,6 +161,9 @@ void on_keyboard(unsigned char key, int x, int y) {
     switch(key) {
         case 'r': // restart animation
             animation_parameter = 0;
+            lives = 3;
+            level = 1;
+            pray_speed = 5.0;
             animation_set = 0;
             pray_killed = 0;
             cooldown_timer_space = 0;
@@ -219,11 +224,11 @@ void on_keyboard(unsigned char key, int x, int y) {
         	break;
     	case 'n':
     	case 'N':
-    		pray_speed -= 0.1;
+    		pray_speed *= 0.9;
     		break;
     	case 'm':
     	case 'M':
-    		pray_speed += 0.1;
+    		pray_speed *= 1.1;
     		break;
     }
 }
@@ -257,10 +262,23 @@ void on_timer(int id) {
     	cooldown_timer_space = 0;
     }
 
+    if(live_cd>0){
+    	live_cd--;
+    }
+
     glutPostRedisplay();
 
     if (animation_ongoing)
         glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
+}
+
+void kill_reset(int i){
+	int maxx = 6;
+	int maxz = 6, minz = -3;
+
+	position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;;
+	position_of_pray[i][1] = 1;
+	position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 }
 
 //update pray position after movement
@@ -271,14 +289,23 @@ void update_pray_position(){
 			position_of_pray[i][1] += pray_movement[i][1]*pray_speed;
 			position_of_pray[i][2] += pray_movement[i][2]*pray_speed/0.5;
 			
-			if(position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
-				|| position_of_pray[i][1]<-1 || position_of_pray[i][0]>7){
-				animation_parameter = 0;
-	            animation_set = 0;
-	            pray_killed = 0;
-	            initiate_pray();
-				animation_ongoing = 0;
-	            glutPostRedisplay();
+			if((position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
+				|| position_of_pray[i][1]<-1 || position_of_pray[i][1]>7
+				|| position_of_pray[i][2]<-7 || position_of_pray[i][2]>11) 
+				&& !live_cd){
+				kill_reset(i);
+				
+				lives --;
+				printf("%d\n", lives);
+				live_cd = IMUNE_CD;
+				if(lives <= 0){
+					animation_parameter = 0;
+		            animation_set = 0;
+		            pray_killed = 0;
+		            initiate_pray();
+					animation_ongoing = 0;
+		            glutPostRedisplay();
+				}
 			}
 		}
 	}
@@ -317,15 +344,11 @@ void generate_terain(){
 
 //initial positions of pray and movement vectors
 void initiate_pray(){
-	int maxx = 6;
-	int maxz = 6, minz = -3;
 	pray_speed = 0.001;
 
 	if(!animation_parameter & !animation_set){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
-			position_of_pray[i][1] = 1;
-			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+			kill_reset(i);
 
 			if(position_of_pray[i][0]<0){
 				pray_movement[i][0] = (float)(rand() % 100)/30000;
@@ -356,8 +379,6 @@ int sgn(float num){
 //function for killing pray in one quater of the map
 void kill(int q){
 	if(animation_ongoing){
-		int maxx = 3;
-		int maxz = 6, minz = -3;
 
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
 			int killed = 0;
@@ -387,9 +408,7 @@ void kill(int q){
 			if(killed){
 				pray_killed++;
 
-				position_of_pray[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;;
-				position_of_pray[i][1] = 1;
-				position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+				kill_reset(i);
 
 				if(position_of_pray[i][0]<0){
 					pray_movement[i][0] = (float)(rand() % 100)/100000;
