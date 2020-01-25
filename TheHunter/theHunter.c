@@ -12,8 +12,9 @@
 #define NUM_OF_TREES 12
 #define NUM_OF_BUSH 15
 #define MAX_NUM_OF_PRAY 15
-#define MAX_LIVES 3
+#define START_LIVES 3
 #define IMUNE_CD 50
+#define LIFE_UP_C 50;
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
@@ -30,7 +31,8 @@ static void initialize(void);
 
 int window_width = 1200, widnow_height = 800;
 
-int pray_killed = 0, level = 1, lives = 3, live_cd = 0;
+int pray_killed = 0, level = 1, lives = START_LIVES, live_cd = 0;
+int life_up_condition = LIFE_UP_C;
 
 //parametri za kontrolu animacije
 float animation_parameter = 0;
@@ -161,9 +163,11 @@ static void initialize(void){
 void on_keyboard(unsigned char key, int x, int y) {
     switch(key) {
         case 'r': // restart animation
+            printf("Score: %d | Level: %d\n", pray_killed, level);
             animation_parameter = 0;
-            lives = 3;
+            lives = START_LIVES;
             level = 1;
+           	life_up_condition = LIFE_UP_C;
             pray_speed = 5.0;
             animation_set = 0;
             pray_killed = 0;
@@ -186,8 +190,9 @@ void on_keyboard(unsigned char key, int x, int y) {
             break;
         //quit program
         case 27:
-          exit(0);
-          break;
+        	printf("Score: %d | Level: %d\n", pray_killed, level);
+          	exit(0);
+          	break;
         //Kill commands
         case 'a':
         case 'A':
@@ -244,6 +249,11 @@ void on_timer(int id) {
     if(pray_killed % level*3 == 0){
     	pray_speed += 0.2;
     	level++;
+    }
+
+    if(pray_killed > life_up_condition){
+    	lives++;
+    	life_up_condition *= 2;
     }
 
     //cooldown control
