@@ -6,3 +6,6 @@ void make_bush(float x, float y, float z, float rot);
 
 //Makes pray
 void draw_pray(float x, float y, float z);
+
+//Draw lives
+void draw_heart();

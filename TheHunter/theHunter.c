@@ -54,6 +54,7 @@ void draw_terrain();
 void generate_pray();
 void update_pray_position();
 void kill();
+void kill_reset(int i);
 
 void generate_terain();
 void initiate_pray();
@@ -61,7 +62,7 @@ void initiate_pray();
 int main(int argc, char **argv){
     // Initialization of GLUT.
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_ALPHA);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
     glutInitWindowSize(window_width, widnow_height);
     glutInitWindowPosition(50, 50);
@@ -296,7 +297,6 @@ void update_pray_position(){
 				kill_reset(i);
 				
 				lives --;
-				printf("%d\n", lives);
 				live_cd = IMUNE_CD;
 				if(lives <= 0){
 					animation_parameter = 0;
@@ -453,7 +453,7 @@ void draw_tree(float x, float h, float z){
    	//tree top
    	glPushMatrix();
    		glTranslatef(0,h + 0.5,0);
-   		glColor4f(0.2, 0.8, 0.3,1);
+   		glColor3f(0.2, 0.8, 0.3);
    		glScalef(floor(h)*0.3,floor(h)*0.3,floor(h)*0.3);
    		glutSolidSphere(1,32,32);
    	glPopMatrix();
@@ -471,6 +471,17 @@ void on_display() {
     gluLookAt(0, 2, 15,
               0, 3, 0,
               0, 1, 0);
+
+    glPushMatrix();
+    glTranslatef(-2.2,3.5,10);
+    glScalef(0.15,0.15,0.15);
+    for(int k = 0; k < lives; k++){
+    	glTranslatef(1.2,0,0);
+    	glPushMatrix();
+    		draw_heart();
+    	glPopMatrix();
+    }
+    glPopMatrix();
 
     //draw the static scene
     draw_terrain();
