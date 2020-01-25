@@ -13,8 +13,6 @@
 #define NUM_OF_BUSH 15
 #define MAX_NUM_OF_PRAY 15
 
-#define MAX_SPEED 1
-
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
 #define FILENAME1 "bmp/grass.bmp"
@@ -219,6 +217,14 @@ void on_keyboard(unsigned char key, int x, int y) {
         		cooldown_timer_space =1;
         	}
         	break;
+    	case 'n':
+    	case 'N':
+    		pray_speed -= 0.1;
+    		break;
+    	case 'm':
+    	case 'M':
+    		pray_speed += 0.1;
+    		break;
     }
 }
 
@@ -261,9 +267,9 @@ void on_timer(int id) {
 void update_pray_position(){
 	if(animation_ongoing){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
-			pray_movement[i][0]*pray_speed > MAX_SPEED ? (position_of_pray[i][0] += MAX_SPEED) : (position_of_pray[i][0] += pray_movement[i][0]*pray_speed);
-			pray_movement[i][1]*pray_speed > MAX_SPEED ? (position_of_pray[i][1] += MAX_SPEED) : (position_of_pray[i][1] += pray_movement[i][1]*pray_speed);
-			pray_movement[i][2]*pray_speed > (MAX_SPEED/2) ? (position_of_pray[i][2] += MAX_SPEED) : (position_of_pray[i][2] += pray_movement[i][2]*pray_speed);
+			position_of_pray[i][0] += pray_movement[i][0]*pray_speed;
+			position_of_pray[i][1] += pray_movement[i][1]*pray_speed;
+			position_of_pray[i][2] += pray_movement[i][2]*pray_speed/0.5;
 			
 			if(position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
 				|| position_of_pray[i][1]<-1 || position_of_pray[i][0]>7){
@@ -322,14 +328,14 @@ void initiate_pray(){
 			position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 
 			if(position_of_pray[i][0]<0){
-				pray_movement[i][0] = (float)(rand() % 100)/100000;
+				pray_movement[i][0] = (float)(rand() % 100)/30000;
 			}
 			else{
-				pray_movement[i][0] = -(float)(rand() % 100)/100000;
+				pray_movement[i][0] = -(float)(rand() % 100)/30000;
 			}
 
-			pray_movement[i][1] = (float)(rand() % 100)/100000;
-			pray_movement[i][2] = (float)(rand() % 100)/100000;
+			pray_movement[i][1] = (float)(rand() % 100)/30000;
+			pray_movement[i][2] = (float)(rand() % 100)/80000;
 		}
 	}
 
