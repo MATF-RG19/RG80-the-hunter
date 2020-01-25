@@ -9,3 +9,6 @@ void draw_pray(float x, float y, float z);
 
 //Draw lives
 void draw_heart();
+
+//Draw floor
+void draw_floor(GLuint name);

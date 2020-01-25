@@ -262,3 +262,15 @@ void draw_heart(){
 
 	glPopMatrix();
 }
+
+void draw_floor(GLuint name){
+    glPushMatrix();
+    
+    glPushMatrix();
+    	glTranslatef(-15,1,15);
+        glScalef(30, 0.1, 30);
+        draw_cube_with_texture(30, 1, 30, name);
+    glPopMatrix();
+
+    glPopMatrix();
+}

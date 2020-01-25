@@ -4,16 +4,18 @@
 #include <time.h>
 #include <stdlib.h>
 #include "image.h"
+#include "drawWithTex.h"
 
 #define TIMER_INTERVAL 24
 #define TIMER_ID 0
 
 #define NUM_OF_TREES 12
-#define NUM_OF_BUSH 15
+#define NUM_OF_BUSH 20
 #define MAX_NUM_OF_PRAY 15
 #define START_LIVES 3
 #define IMUNE_CD 50
-#define LIFE_UP_C 50;
+#define LIFE_UP_C 50
+#define START_SPEED 5
 
 //texture names
 #define FILENAME0 "bmp/bark.bmp"
@@ -46,11 +48,10 @@ float position_of_pray[MAX_NUM_OF_PRAY][3];
 
 //movment variables
 float pray_movement[MAX_NUM_OF_PRAY][3];
-float pray_speed = 5.0;
+float pray_speed = START_SPEED;
 float move = 0;
 
 //function declarations
-void draw_floor();
 void draw_tree(float x, float y, float z);
 void draw_terrain();
 void generate_pray();
@@ -159,6 +160,16 @@ static void initialize(void){
 
     glEnable(GL_COLOR_MATERIAL);
     srand(time(0));
+
+    animation_parameter = 0;
+    lives = START_LIVES;
+    level = 1;
+   	life_up_condition = LIFE_UP_C;
+    pray_speed = START_SPEED;
+    animation_set = 0;
+    pray_killed = 0;
+    cooldown_timer_space = 0;
+    cooldown_timer = 0;
 }
 
 void on_keyboard(unsigned char key, int x, int y) {
@@ -169,7 +180,7 @@ void on_keyboard(unsigned char key, int x, int y) {
             lives = START_LIVES;
             level = 1;
            	life_up_condition = LIFE_UP_C;
-            pray_speed = 5.0;
+            pray_speed = START_SPEED;
             animation_set = 0;
             pray_killed = 0;
             cooldown_timer_space = 0;
@@ -247,7 +258,7 @@ void on_timer(int id) {
     update_pray_position();
 
     //increse lvl dificulty
-    if(pray_killed % level*5 == 0){
+    if(pray_killed > (level*10)){
     	pray_speed += 1;
     	level++;
     }
@@ -280,7 +291,7 @@ void on_timer(int id) {
     }
 
     //animation
-    move += 0.5;
+    move += 0.25;
 
     glutPostRedisplay();
 
@@ -298,7 +309,10 @@ void kill_reset(int i){
 }
 
 void pray_move_animation(int i){
-	position_of_pray[i][1] += sin(move)*0.1;
+	position_of_pray[i][1] += sin(move)*0.075;
+	if(position_of_pray[i][1]<=1.1){
+		position_of_pray[i][1] = 1.1;
+	}
 }
 
 //update pray position after movement
@@ -350,7 +364,7 @@ void generate_terain(){
 	for(int i=0; i<NUM_OF_BUSH; i++){
 		position_of_bush[i][0] = maxx - (float)(rand() % (maxx * 200))/(float)100;
 		position_of_bush[i][1] = 1.2;
-		position_of_bush[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
+		position_of_bush[i][2] = maxz + 1 - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 		position_of_bush[i][3] = rand()%360;
 	}
 
@@ -364,7 +378,6 @@ void generate_terain(){
 
 //initial positions of pray and movement vectors
 void initiate_pray(){
-	pray_speed = 0.001;
 
 	if(!animation_parameter & !animation_set){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
@@ -443,19 +456,6 @@ void kill(int q){
 	}
 }
 
-//drawing the floor
-void draw_floor(){
-    glPushMatrix();
-    
-    glPushMatrix();
-    	glTranslatef(-15,1,15);
-        glScalef(30, 0.1, 30);
-        draw_cube_with_texture(30, 1, 30, names[1]);
-    glPopMatrix();
-
-    glPopMatrix();
-}
-
 //tree making function
 void draw_tree(float x, float h, float z){
 	glPushMatrix();
@@ -517,7 +517,7 @@ void draw_terrain(){
 	glPushMatrix();
 
 	glPushMatrix();
-        draw_floor();
+        draw_floor(names[1]);
     glPopMatrix();
 
     for(int i = 0; i < NUM_OF_BUSH; i++){
