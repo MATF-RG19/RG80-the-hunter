@@ -6,6 +6,7 @@ Igrac ima na raspolaganju 4 prostorna oruzija koja su kalebrisana da unistavaju 
 Nazalost sva cetiri oruzija su povezana na samo jednu bateriju koja se u potpunosti prazni svakim pucnjem i zahteva odredjeno vreme pre nego sto se moze opet koristiti.
 Kako igrac ubija sve vise i vise svemirskih ovaca one sve brze pokusavaju da pobegnu sa nase planete.
 Lokacija na kojoj ce se igrac naci je kompletno randomizovana kao i pozicije svemirskih ovaca i njihova putanja bezanja sa nase planete.
+Igrac ima dve satelicke mreze koje u slucaju da pobegnu neki neprijatelji se automacki aktiviraju i par sekundi ce ubijati svakog neprijatelja koji pokusa da napusti planetu. Broj aktivacija ovih mreza se moze povecati skupljanjem energije koja se oslobadja ubijanjem neprijatelja. Svako povecanje u broju mreze ce kostati duplo vise energije nego prethodno.
 _____________________________________________________________________________________________________________________________________
 
 ### Upustvo
@@ -19,6 +20,11 @@ Kontrole:
 **R** - restaruje igricu
 
 **ESC** - izlazi iz igrice
+
+
+**N** - smanjuje tezinu igrice za 10% (usporava neprijatelje za 10%)
+
+**M** - povecava tezinu igrice za 10% (ubrzava neprijatelje za 10%)
 
 
 **A** - aktivira oruzije okrenuto ka donjoj levoj cetvrtini vidika
