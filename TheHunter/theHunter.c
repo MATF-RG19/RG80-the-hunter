@@ -48,6 +48,7 @@ float position_of_pray[MAX_NUM_OF_PRAY][3];
 //movment variables
 float pray_movement[MAX_NUM_OF_PRAY][3];
 float pray_speed = 5.0;
+float move = 0;
 
 //function declarations
 void draw_floor();
@@ -57,6 +58,7 @@ void generate_pray();
 void update_pray_position();
 void kill();
 void kill_reset(int i);
+void pray_move_animation(int i);
 
 void generate_terain();
 void initiate_pray();
@@ -246,11 +248,12 @@ void on_timer(int id) {
     update_pray_position();
 
     //increse lvl dificulty
-    if(pray_killed % level*3 == 0){
-    	pray_speed += 0.2;
+    if(pray_killed % level*5 == 0){
+    	pray_speed += 1;
     	level++;
     }
 
+    //extra lives
     if(pray_killed > life_up_condition){
     	lives++;
     	life_up_condition *= 2;
@@ -265,17 +268,20 @@ void on_timer(int id) {
     	cooldown_timer_space++;
     }
 
-    if(cooldown_timer>2*TIMER_INTERVAL){
+    if(cooldown_timer>TIMER_INTERVAL){
     	cooldown_timer = 0;
     }
 
-    if(cooldown_timer_space>15*TIMER_INTERVAL){
+    if(cooldown_timer_space>10*TIMER_INTERVAL){
     	cooldown_timer_space = 0;
     }
 
     if(live_cd>0){
     	live_cd--;
     }
+
+    //animation
+    move += 0.5;
 
     glutPostRedisplay();
 
@@ -292,12 +298,17 @@ void kill_reset(int i){
 	position_of_pray[i][2] = maxz - (float)(rand() % ((maxz - minz) * 100))/(float)100;
 }
 
+void pray_move_animation(int i){
+	position_of_pray[i][1] += sin(move)*0.1;
+}
+
 //update pray position after movement
 void update_pray_position(){
 	if(animation_ongoing){
 		for(int i=0; i<MAX_NUM_OF_PRAY; i++){
 			position_of_pray[i][0] += pray_movement[i][0]*pray_speed;
 			position_of_pray[i][1] += pray_movement[i][1]*pray_speed;
+			pray_move_animation(i);
 			position_of_pray[i][2] += pray_movement[i][2]*pray_speed/0.5;
 			
 			if((position_of_pray[i][0]<-8.5 || position_of_pray[i][0]>8.5
