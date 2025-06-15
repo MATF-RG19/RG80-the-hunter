@@ -43,6 +43,6 @@ Osnovna oruzija ASQW se ne mogu koristi kraci preiod posle koriscenja jednog od 
 
 Ultimativno oruzije SPACE se ne moze koristiti duzi period posle aktivacije.
 
-<img width="450" alt="snowboarder" src="https://github.com/user-attachments/assets/94afcbf6-c84d-4fc0-9e63-1321be70bd994" />
+<img width="450" alt="screenshot" src="https://github.com/MATF-RG19/RG80-the-hunter/blob/master/TheHunter/ScreenShots/screanShot2.png" />
 
 https://github.com/MATF-RG19/RG80-the-hunter
