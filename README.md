@@ -42,3 +42,7 @@ NAPOMENA: Pozicija tastera, za ciljanje, na tastaturi odgovara kvadrantu koji un
 Osnovna oruzija ASQW se ne mogu koristi kraci preiod posle koriscenja jednog od njih.
 
 Ultimativno oruzije SPACE se ne moze koristiti duzi period posle aktivacije.
+
+<img width="450" alt="snowboarder" src="https://github.com/user-attachments/assets/94afcbf6-c84d-4fc0-9e63-1321be70bd994" />
+
+https://github.com/MATF-RG19/RG80-the-hunter
